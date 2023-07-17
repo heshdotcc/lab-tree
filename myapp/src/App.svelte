@@ -29,6 +29,9 @@
 </main>
 
 <style>
+  h1 {
+    font-family: "Parametric Glitch";
+  }
   .logo {
     height: 6em;
     padding: 1.5em;
