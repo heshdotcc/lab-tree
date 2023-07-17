@@ -9,14 +9,7 @@
 </p>
 <a href="{base}/about">About</a>
 
-<style>
-  @font-face{
-    font-family: "Parametric Glitch";
-    font-style: normal;
-    font-weight: 400;
-    src: url('fonts/ParametricGlitchRegular.woff2') format('woff')
-  }
-
+<style global>
   h1 {
     font-family: "Parametric Glitch"
   }

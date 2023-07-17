@@ -1,106 +1,102 @@
-# sveltekit-gh-pages
+---
+permalink: /index.html
+---
 
-> Minimal [SvelteKit](https://kit.svelte.dev/) set-up made deployable to [GitHub Pages](https://metonym.github.io/sveltekit-gh-pages/).
+[Website (Git Pages)](https://chrisnajman.github.io/self-hosting-fonts)
 
-## 1) Use the static adapter
+# Self-hosting fonts
 
-Install the [SvelteKit static adapter](https://github.com/sveltejs/kit/tree/master/packages/adapter-static) to prerender the app.
+Many of us use Google fonts via a CDN. However, Germany has decided that [this contravenes GDPR](https://blog.runcloud.io/google-fonts-gdpr/), leaving site owners open to litigation.
 
-**package.json**
+We can still display Google fonts by:
 
-```diff
-  "devDependencies": {
-+   "@sveltejs/adapter-static": "^2.0.2",
-    "@sveltejs/kit": "^1.15.10",
-    "gh-pages": "^5.0.0",
-    "svelte": "^3.58.0",
-    "vite": "^4.3.4"
-  }
+1. Downloading the font (variants) from [Google Fonts](https://fonts.google.com/), then
+2. converting the .ttf files to .woff and .woff2 using a web font generator, then
+3. using @font-face in the CSS and
+4. preloading the fonts in the HTML.
+
+**Note**: This page concentrates on Google Fonts, but the same principles apply to any other kind of web font.
+
+## Web font generators
+
+[Font Squirrel](https://www.fontsquirrel.com/tools/webfont-generator)
+This worked for "Roboto" but failed with the static font versions of both "Lato" and "Open Sans".
+
+[Creative Fabrica](https://www.creativefabrica.com/webfont-generator/)
+I used this for "Lato" and "Open Sans" static files. I had to upload each variant, one at a time.
+
+## HTML
+
+I was advised to preload the fonts in the head of the html page. This is supposed to speed up the delivery of the fonts and increase Google's [Core Web Vitals (CWVs)](https://support.google.com/webmasters/answer/9205520?hl=en) performance. However, I saw warnings after doing this (see Testing/Firefox and Firefox Developer Edition, below).
+
+```html
+<head>
+  <link
+    rel="preload"
+    href="roboto-light-webfont.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin="anonymous"
+  />
+  <link
+    rel="preload"
+    href="roboto-regular-webfont.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin="anonymous"
+  />
+  <link
+    rel="preload"
+    href="roboto-medium-webfont.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin="anonymous"
+  />
+  ...
+  <!-- CSS file comes after preload -->
+</head>
 ```
 
-**svelte.config.js**
+## CSS
 
-```diff
-+ import adapter from "@sveltejs/adapter-static";
-
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
-  kit: {
-+   adapter: adapter(),
-  },
-};
-
-export default config;
-
-```
-
-Ensure your top-level `+layout.js` exports `prerender = true`.
-
-```js
-// src/routes/+layout.js
-export const prerender = true;
-```
-
-## 2) Modify `paths.base` in the config
-
-- `kit.paths.base` should be your repo URL subpath (see the [Vite docs](https://vitejs.dev/guide/static-deploy.html#github-pages))
-
-```diff
-import adapter from "@sveltejs/adapter-static";
-
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
-  kit: {
-    adapter: adapter(),
-+   paths: {
-+     base: process.env.NODE_ENV === "production" ? "/sveltekit-gh-pages" : "",
-+   },
-  },
-};
-
-export default config;
-
-```
-
-**Note:** You will also need to prepend relative paths with the [SvelteKit `base` path](https://kit.svelte.dev/docs/modules#$app-paths) so that your app can build successfully for production.
-
-```svelte
-<script>
-  import { base } from "$app/paths";
-</script>
-
-<a href="{base}/about">About</a>
-```
-
-## 3) Add a `.nojekyll` file to the build
-
-The last step is to add a `.nojekyll` file to the build folder to [bypass Jekyll on GitHub Pages](https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/).
-
-**package.json**
-
-```json
-{
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "deploy": "touch build/.nojekyll && gh-pages -d build -t true"
-  }
+```css
+@font-face {
+  font-family: "Roboto";
+  font-weight: 300;
+  src: url("roboto-light-webfont.woff2") format("woff2"), url("roboto-light-webfont.woff")
+      format("woff");
+}
+/** Regular: 400 **/
+@font-face {
+  font-family: "Roboto";
+  font-weight: 400;
+  src: url("roboto-regular-webfont.woff2") format("woff2"), url("roboto-regular-webfont.woff")
+      format("woff");
+}
+/** Medium: 500 **/
+@font-face {
+  font-family: "Roboto";
+  font-weight: 500;
+  src: url("roboto-medium-webfont.woff2") format("woff2"), url("roboto-medium-webfont.woff")
+      format("woff");
 }
 ```
 
----
+## Testing
 
-## Quick start
+- Tested on:
+- Windows 10
+- Chrome
+- Firefox, Firefox Developer Edition
+  - **Note**. Warnings were displayed in the consoles of only these two browsers. The warnings were of 2 types:
+  1.  _Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content._
+  2.  The other warnings were for each font variant, and occured after about 10 seconds, e.g. for "Lato":
+  - _The resource at “https://chrisnajman.github.io/self-hosting-fonts/fonts/lato/lato-light-webfont.woff2” preloaded with link preload was not used within a few seconds. Make sure all attributes of the preload tag are set correctly._
+  - _The resource at “https://chrisnajman.github.io/self-hosting-fonts/fonts/lato/lato-regular-webfont.woff2” preloaded with link preload was not used within a few seconds. Make sure all attributes of the preload tag are set correctly._
+  - _The resource at “https://chrisnajman.github.io/self-hosting-fonts/fonts/lato/lato-bold-webfont.woff2” preloaded with link preload was not used within a few seconds. Make sure all attributes of the preload tag are set correctly._
+  - Discussion and searching on Stack Overflow has not yielded an understandable answer. However, [I posted a question myself on Stack Overflow](https://stackoverflow.com/questions/75351782/why-does-firefox-show-font-preload-warning-the-resource-at-url-preloaded-with) and if it gets answered, I'll update this README.md with any new information.
+- Microsoft Edge
 
-Use [degit](https://github.com/Rich-Harris/degit) to quickly scaffold a new project:
+## Acknowledgements
 
-```sh
-npx degit metonym/sveltekit-gh-pages my-app
-cd my-app && yarn install
-```
-
-## Deploying to GitHub Pages
-
-First, build the app by running `yarn build`.
-
-Then, run `yarn deploy` to deploy the app to GitHub Pages.
+The bulk of the information came from [Self-hosting fonts explained (including Google fonts) // @font-face tutorial (YouTube)](https://youtu.be/zK-yy6C2Nck). Information on preloading/CWVs, and non-GDPR compliance emerged from a comments thread on the same page.
