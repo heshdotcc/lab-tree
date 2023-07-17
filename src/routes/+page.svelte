@@ -14,7 +14,7 @@
     font-family:parametric glitch;
     font-style:normal;
     font-weight:400;
-    src:local('Parametric Glitch'),url('./fonts/Parametric Glitch.woff') format('woff')
+    src:local('Parametric Glitch'),url('./static/fonts/Parametric Glitch.woff') format('woff')
   }
 
   h1 {
