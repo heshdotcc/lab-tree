@@ -11,10 +11,10 @@
 
 <style>
   @font-face{
-    font-family:parametric glitch;
-    font-style:normal;
-    font-weight:400;
-    src:local('Parametric Glitch'),url('./static/fonts/Parametric Glitch.woff') format('woff')
+    font-family: "Parametric Glitch";
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/ParametricGlitchRegular.woff2') format('woff')
   }
 
   h1 {
